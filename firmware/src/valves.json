@@ -1,0 +1,48 @@
+[
+  {
+    "id": 0,
+    "master": true,
+    "gpio": 40,
+    "active": "high"
+  },
+  {
+    "id": 1,
+    "gpio": 38,
+    "active": "high"
+  },
+  {
+    "id": 2,
+    "gpio": 37,
+    "active": "high"
+  },
+  {
+    "id": 3,
+    "gpio": 36,
+    "active": "high"
+  },
+  {
+    "id": 4,
+    "gpio": 35,
+    "active": "high"
+  },
+  {
+    "id": 5,
+    "gpio": 33,
+    "active": "high"
+  },
+  {
+    "id": 6,
+    "gpio": 32,
+    "active": "high"
+  },
+  {
+    "id": 7,
+    "gpio": 31,
+    "active": "high"
+  },
+  {
+    "id": 8,
+    "gpio": 29,
+    "active": "high"
+  }
+]
