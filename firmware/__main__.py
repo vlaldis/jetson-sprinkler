@@ -6,24 +6,19 @@ import Jetson.GPIO as GPIO
 from src import app
 
 parser = argparse.ArgumentParser(description='Sprinkler system for NVIDIA Jetson NANO.')
-parser.add_argument('-t', '--test', type=bool, default=False,
-                    help='Test all configured valves for 20 seconds')
+parser.add_argument('-t', '--test', action='store_true',
+                    help='Test all configured valves for 5 seconds (will be 20 for live sprinkler)')
 args = parser.parse_args()
-
-
-# do not forget to set
-# sudo groupadd -f -r gpio
-# sudo usermod -a -G gpio your_user_name
-
-#https://github.com/NVIDIA/jetson-gpio
 
 
 if __name__ == '__main__':
     print("Sprinkler system started {}".format(time.asctime()))
     print(args.__dict__)
 
+    GPIO.setmode(GPIO.BOARD)
+    
     if args.test:
-        app.test(20)
+        app.test(5)
     else:
         app.run()
 
