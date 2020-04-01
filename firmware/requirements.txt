@@ -1,2 +1,2 @@
-argparse
-Jetson.GPIO
+argparse===1.4.0
+Jetson.GPIO===2.0.4

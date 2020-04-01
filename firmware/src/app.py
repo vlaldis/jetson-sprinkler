@@ -2,6 +2,7 @@ import json
 import time
 
 from src.valve import Valve
+from src.schedule import Schedule
 # from sprinkler import Sprinkler
 
 
@@ -10,10 +11,15 @@ def load_valves(file="src/valves.json"):
         return [Valve(**valve) for valve in json.load(json_file)]
 
 
+def load_schedules(file="src/schedules.json"):
+    with open(file) as json_file:
+        return [Schedule(**schedule) for schedule in json.load(json_file)]
+
+
 def run():
-    pass
-    # valves = load_valves()
-    # sprinkler = Sprinkler(valves)
+    schedules = load_schedules()
+    valves = load_valves()
+    # sprinkler = Sprinkler(valves, schedules)
     # sprinkler.run()
 
 

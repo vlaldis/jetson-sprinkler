@@ -5,21 +5,26 @@ import Jetson.GPIO as GPIO
 
 from src import app
 
-parser = argparse.ArgumentParser(description='Sprinkler system for NVIDIA Jetson NANO.')
-parser.add_argument('-t', '--test', action='store_true',
-                    help='Test all configured valves for 5 seconds (will be 20 for live sprinkler)')
+parser = argparse.ArgumentParser(description='Sprinkler system for NVIDIA Jetson Nano.')
+parser.add_argument('-t', '--test', metavar='N', type=int, default=900,
+                    help='Test all configured valves for N seconds. Default 900.')
 args = parser.parse_args()
+
+
+def init():
+    GPIO.setmode(GPIO.BOARD)
 
 
 if __name__ == '__main__':
     print("Sprinkler system started {}".format(time.asctime()))
     print(args.__dict__)
 
-    GPIO.setmode(GPIO.BOARD)
-    
-    if args.test:
-        app.test(5)
-    else:
-        app.run()
+    try:
+        init()
 
-    GPIO.cleanup()
+        if args.test:
+            app.test(args.test)
+        else:
+            app.run()
+    finally:
+        GPIO.cleanup()
