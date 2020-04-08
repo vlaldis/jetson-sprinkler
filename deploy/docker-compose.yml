@@ -1,0 +1,15 @@
+services:
+  ui:
+    image: jetson-sprinkler
+    container_name: jetson-sprinkler
+    environment:
+      uid: ${UID}
+      gid: ${GID}
+      gid_gpio: ${GID_GPIO}
+    volumes:
+      # udev rules for GPIO
+      - /dev:/dev
+      - /etc/udev/rules.d:/etc/udev/rules.d
+    devices:
+      # - ${DEVICE}:/dev/ttyDAQ
+      - /dev:/dev  # for udev rules (GPIO)

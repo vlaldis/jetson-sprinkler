@@ -1,0 +1,1 @@
+0 5 * * 5 python3 /firmware/__main__.py

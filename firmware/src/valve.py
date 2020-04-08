@@ -16,15 +16,16 @@ class Valve(object):
 
     def open(self):
         set(self.active)
-        notify("opened")
+        self.notify("opened")
 
     def close(self):
         set(self.inactive)
-        notify("closed")
+        self.notify("closed")
 
     def set(self, state):
-         GPIO.output(self.gpio, state)
+        GPIO.output(self.gpio, state)
 
     def notify(self, action):
         print("Valve {} {} at {}.".format(self.id, action, time.asctime()))
+
 

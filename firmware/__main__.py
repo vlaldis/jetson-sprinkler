@@ -1,14 +1,26 @@
 import time
+import json
 
 import argparse
 import Jetson.GPIO as GPIO
 
-from src import app
+from src.valve import Valve
 
-parser = argparse.ArgumentParser(description='Sprinkler system for NVIDIA Jetson Nano.')
-parser.add_argument('-t', '--test', metavar='N', type=int, default=900,
-                    help='Test all configured valves for N seconds. Default 900.')
+parser = argparse.ArgumentParser(description='Sprinkler execution for NVIDIA Jetson Nano.')
+parser.add_argument('-v', '--valves', metavar='1 3 6 8 N', type=int, nargs='+', default=-1,
+                    help='IDs of valves to run. Default -1 (all).')
+parser.add_argument('-c', '--valves-configuration', metavar='FILE.json', type=str, default='/valves.json',
+                    help='Json file with configuration of valves. Default /valves.json.')
+parser.add_argument('-r', '--rounds', metavar='N', type=int, default=2,
+                    help='How many times should be the routine repeated. Default 2.')
+parser.add_argument('-d', '--duration', metavar='N', type=int, default=900,
+                    help='Run each <--valves> for <-d> seconds. Default 900.')
 args = parser.parse_args()
+
+
+def load_valves(file='/valves.json'):
+    with open(file) as json_file:
+        return [Valve(**valve) for valve in json.load(json_file)]
 
 
 def init():
@@ -16,15 +28,28 @@ def init():
 
 
 if __name__ == '__main__':
-    print("Sprinkler system started {}".format(time.asctime()))
+    print("Sprinkler routine started {}".format(time.asctime()))
     print(args.__dict__)
 
     try:
         init()
 
-        if args.test:
-            app.test(args.test)
-        else:
-            app.run()
+        valves = load_valves(args.valves_configuration)
+        master = next((valve for valve in valves if valve.master), None)
+        without_master = [valve for valve in valves if not valve.master]
+        valves_to_run = [valve for valve in valves if valve.id in args.valves] if args.valves == -1 else without_master
+
+        if master is not None:
+            master.open()
+
+        for i in range(0, args.rounds):
+            for valve in valves_to_run:
+                valve.open()
+                time.sleep(args.duration)
+                valve.close()
+
+        if master is not None:
+            master.close()
+
     finally:
         GPIO.cleanup()
