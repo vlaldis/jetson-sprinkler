@@ -1,15 +1,25 @@
+version: '3'
+
 services:
-  ui:
-    image: jetson-sprinkler
+  jetson-sprinkler:
+    image: test
     container_name: jetson-sprinkler
     environment:
-      uid: ${UID}
-      gid: ${GID}
-      gid_gpio: ${GID_GPIO}
+      uid: $UID
+      gid: $GID
+      gid_gpio: $GID_GPIO
+    entrypoint: /bin/bash
     volumes:
       # udev rules for GPIO
-      - /dev:/dev
       - /etc/udev/rules.d:/etc/udev/rules.d
+      # system access for GPIO
+      - /dev:/dev
+      - /sys:/sys
+      - /proc:/proc
+      - /sys/class/gpio:/sys/class/gpio
+      - /sys/devices:/sys/devices
     devices:
-      # - ${DEVICE}:/dev/ttyDAQ
-      - /dev:/dev  # for udev rules (GPIO)
+      - /dev/gpiochip0:/dev/gpiochip0 # for GPIO
+      - /dev/gpiochip1:/dev/gpiochip1 # for GPIO
+    user: $UID:$GID
+    privileged: true
