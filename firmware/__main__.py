@@ -15,6 +15,9 @@ parser.add_argument('-r', '--rounds', metavar='N', type=int, default=2,
                     help='How many times should be the routine repeated. Default 2.')
 parser.add_argument('-d', '--duration', metavar='N', type=int, default=900,
                     help='Run each <--valves> for <-d> seconds. Default 900.')
+parser.add_argument('--round-delay', metavar='N', type=int, default=2,
+                    help='Delay between opening valves. In seconds. Default 2.')
+
 args = parser.parse_args()
 
 
@@ -48,6 +51,7 @@ if __name__ == '__main__':
                 valve.open()
                 time.sleep(args.duration)
                 valve.close()
+                time.sleep(args.round_delay)  # let the previous valve close
 
         if master:
             master.close()

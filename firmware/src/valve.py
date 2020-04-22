@@ -22,7 +22,7 @@ class Valve(object):
             self.notify(DISABLED_MESSAGE)
             return
 
-        set(self.active)
+        self.set(self.active)
         self.notify("opened")
 
     def close(self):
@@ -30,7 +30,7 @@ class Valve(object):
             self.notify(DISABLED_MESSAGE)
             return
             
-        set(self.inactive)
+        self.set(self.inactive)
         self.notify("closed")
 
     def set(self, state):
