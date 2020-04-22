@@ -2,6 +2,7 @@
   {
     "id": 0,
     "master": true,
+    "enabled": false,
     "gpio": 40,
     "active": "high"
   },
@@ -43,6 +44,18 @@
   {
     "id": 8,
     "gpio": 29,
+    "active": "high"
+  },
+  {
+    "id": 9,
+    "enabled": false,
+    "gpio": 28,
+    "active": "high"
+  },
+  {
+    "id": 10,
+    "enabled": false,
+    "gpio": 27,
     "active": "high"
   }
 ]

@@ -7,7 +7,7 @@ import Jetson.GPIO as GPIO
 from src.valve import Valve
 
 parser = argparse.ArgumentParser(description='Sprinkler execution for NVIDIA Jetson Nano.')
-parser.add_argument('-v', '--valves', metavar='1 3 6 8 N', type=int, nargs='+', default=-1,
+parser.add_argument('-v', '--valves', metavar='1 3 4', type=int, nargs='+', default=-1,
                     help='IDs of valves to run. Default -1 (all).')
 parser.add_argument('-c', '--valves-configuration', metavar='FILE.json', type=str, default='/valves.json',
                     help='Json file with configuration of valves. Default /valves.json.')
@@ -35,11 +35,12 @@ if __name__ == '__main__':
         init()
 
         valves = load_valves(args.valves_configuration)
-        master = next((valve for valve in valves if valve.master), None)
-        without_master = [valve for valve in valves if not valve.master]
-        valves_to_run = [valve for valve in valves if valve.id in args.valves] if args.valves == -1 else without_master
+        only_enabled = [valve for valve in valves if valve.enabled]
+        master = next((valve for valve in only_enabled if valve.master), None)
+        without_master = [valve for valve in only_enabled if not valve.master]
+        valves_to_run = [valve for valve in only_enabled if valve.id in args.valves] if args.valves != -1 else without_master
 
-        if master is not None:
+        if master:
             master.open()
 
         for i in range(0, args.rounds):
@@ -48,7 +49,7 @@ if __name__ == '__main__':
                 time.sleep(args.duration)
                 valve.close()
 
-        if master is not None:
+        if master:
             master.close()
 
     finally:

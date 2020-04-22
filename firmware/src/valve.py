@@ -3,22 +3,33 @@ import Jetson.GPIO as GPIO
 
 HIGH = "high"
 LOW = "low"
+DISABLED_MESSAGE = "Valve disabled. No action exwcuted."
 
 
 class Valve(object):
-    def __init__(self, id, gpio, active, master=False):
+    def __init__(self, id, gpio, active, master=False, enabled=True):
         self.id = id
         self.gpio = gpio
         self.master = master
         self.active = GPIO.HIGH if active == HIGH else GPIO.LOW
         self.inactive = GPIO.LOW if active == HIGH else GPIO.HIGH
-        GPIO.setup(self.gpio, GPIO.OUT)
+        self.enabled = enabled
+        if self.enabled:
+            GPIO.setup(self.gpio, GPIO.OUT)
 
     def open(self):
+        if not self.enabled:
+            self.notify(DISABLED_MESSAGE)
+            return
+
         set(self.active)
         self.notify("opened")
 
     def close(self):
+        if not self.enabled:
+            self.notify(DISABLED_MESSAGE)
+            return
+            
         set(self.inactive)
         self.notify("closed")
 
