@@ -10,7 +10,6 @@ def init():
     GPIO.output(38, GPIO.LOW)
 
 
-
 if __name__ == '__main__':
     try:
         init()

@@ -34,15 +34,15 @@ if __name__ == '__main__':
     print("Sprinkler routine started {}".format(time.asctime()))
     print(args.__dict__)
 
+    init()
+    valves = load_valves(args.valves_configuration)
+    enabled = [valve for valve in valves if valve.enabled]
+    master = next((valve for valve in enabled if valve.master), None)
+    filterCleanup = next((valve for valve in enabled if valve.filterCleanup), None)
+    valves_for_zones = [valve for valve in enabled if not valve.master and not valve.filterCleanup]
+    valves_to_run = [valve for valve in enabled if valve.id in args.valves] if args.valves != -1 else valves_for_zones
+    
     try:
-        init()
-
-        valves = load_valves(args.valves_configuration)
-        only_enabled = [valve for valve in valves if valve.enabled]
-        master = next((valve for valve in only_enabled if valve.master), None)
-        without_master = [valve for valve in only_enabled if not valve.master]
-        valves_to_run = [valve for valve in only_enabled if valve.id in args.valves] if args.valves != -1 else without_master
-
         if master:
             master.open()
 
@@ -51,10 +51,20 @@ if __name__ == '__main__':
                 valve.open()
                 time.sleep(args.duration)
                 valve.close()
-                time.sleep(args.round_delay)  # let the previous valve close
+                time.sleep(args.round_delay)  # let the previous valve close to start zone at full preasure
+
+            # This is usefull for cleaning filter in my setup, as there is some sand in the water
+            # I have water filter with cleanup valve connected before the expansion tank
+            # so when filter's valve is opened after reaching full presure, backward flow from tank clears the filter
+            if filterCleanup:
+                time.sleep(10)  # wait for expansion tank to fill in
+                filterCleanup.open()
+                time.sleep(5)
+                filterCleanup.close()
 
         if master:
             master.close()
 
     finally:
+        [valve.close() for valve in enabled]  # close everything in case of failure
         GPIO.cleanup()
