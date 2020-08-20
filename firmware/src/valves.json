@@ -43,7 +43,7 @@
   },
   {
     "id": 8,
-    "enabled": true,
+    "enabled": false,
     "filterCleanup": true,
     "gpio": 29,
     "active": "high"

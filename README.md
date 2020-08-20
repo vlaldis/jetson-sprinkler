@@ -1,9 +1,8 @@
 # jetson-sprinkler
-Sprinkler system for NVIDIA Jetson Nano developer kit
+Simple sprinkler system for NVIDIA Jetson Nano developer kit.
+Should work with raspberry as well, just replace ```Jetson.GPIO``` with ```RPi.GPIO```
 
 ## Introduction
-My goal is to create simple sprinkler system (probably dockerized) which will be configured using web/mobile app.
-
 Current architecture:
 1. firmware (Python)
     - runs one time sprinkler routine based on configuration
@@ -11,26 +10,52 @@ Current architecture:
 0. crontab
     - triggers firmware at specific time
     - [currently] need to create manualy
-0. backend (nodejs)
-    - schedules crontab based on API calls
-    - supplies FE current configuration/state/statistics/whatever
-0. UI (React)
-    - Used for some friendly configuration
-    - far far future, but I hope to get there
 
 ## How to run
-Install packages:
-```
-pip install -r firmware/requirements.txt
-```
+1. Install packages:
+    ```
+    pip install -r firmware/requirements.txt
+    ```
 
-Run:
-```
-python3 firmware -h
-```
+0. See help:
+    ```
+    python3 firmware -h
+    ```
+0. Configure valves in ```valves.json```:
+    ```
+    [
+        {
+            "id": 0,  // [required] valves are sorted by id and opened in the order
+            "master": true,  // [optional] master valve is opened at start of routine and closed on the end
+            "enabled": false,  // [optional] if false, valve is ignored during routine
+            "gpio": 40,  // [required] gpio for opening valve
+            "active": "high",  // [required] gpio value for opening of valve
+            "filterCleanup": true  // [optional] open valve on water filter after each round to clean all dirt/sand 
+        },
+        {
+            "id": 1,
+            "gpio": 38,
+            "active": "high"
+        },
+
+        ...
+    ]
+    ```
+
+0. Test all valves for 10 seconds:
+    ```
+    /usr/bin/python3 /<gitpath>/jetson-sprinkler/firmware -c /<gitpath>/jetson-sprinkler/firmware/src/valves.json -d 10 -r 1
+    ```
+
+0. Create schedulle in cron:
+
+    Each Monday and Thursday at 4:00am do two rounds for valves 1, 2, 3, 4 for 15 minutes
+    ```
+    0 4 * * 1,4 <username> /usr/bin/python3 /<gitpath>/jetson-sprinkler/firmware -c /<gitpath>/jetson-sprinkler/firmware/src/valves.json -d 900 -r 2 -v 1 2 3 4
+    ```
 
 ## Weather from online sources
-As I'm going to use rain sensor I don't planing to implement this feature.
+I'm using rain sensor and don't plan to implement this feature.
 Maybe I'll change my mind sometimes.
 
 ## Photos of my solution
