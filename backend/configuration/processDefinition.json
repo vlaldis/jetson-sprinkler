@@ -1,0 +1,9 @@
+{
+    "python": "python3",
+    "firmware": "/home/supercomp/projects/jetson-sprinkler/firmware",
+    "valves": "-v",
+    "duration": "-d",
+    "rounds": "-r",
+    "valves_configuration": "-c",
+    "round_delay": "--round-delay"
+}
