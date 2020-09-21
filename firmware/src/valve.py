@@ -1,9 +1,10 @@
 import time
 import Jetson.GPIO as GPIO
+import logging
 
 HIGH = "high"
 LOW = "low"
-DISABLED_MESSAGE = "Valve disabled. No action exwcuted."
+DISABLED_MESSAGE = "Valve disabled. No action executed."
 
 
 class Valve(object):
@@ -38,6 +39,4 @@ class Valve(object):
         GPIO.output(self.gpio, state)
 
     def notify(self, action):
-        print("Valve {} {} at {}.".format(self.id, action, time.asctime()))
-
-
+        logging.info("Valve {} {} at {}.".format(self.id, action, time.asctime()))
