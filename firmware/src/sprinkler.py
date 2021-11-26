@@ -16,6 +16,7 @@ class Sprinkler(object):
         self.roundDelay = roundDelay
         self.rainSensorPin = rainSensorPin
         self.useRainSensor = rainSensorPin > -1
+        self.cleanup_happened = False
 
         if self.useRainSensor:
             GPIO.setup(self.rainSensorPin, GPIO.IN)
@@ -31,6 +32,7 @@ class Sprinkler(object):
         if self.rains():
             logging.warning(rainMessage)
             GPIO.cleanup()
+            self.cleanup_happened = true
             exit()
 
     def Run(self):
@@ -69,4 +71,5 @@ class Sprinkler(object):
 
         finally:
             [valve.close() for valve in enabled]  # close everything in case of failure
-            GPIO.cleanup()
+            if not self.cleanup_happened:
+                GPIO.cleanup()
