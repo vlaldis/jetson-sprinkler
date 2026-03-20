@@ -1,0 +1,32 @@
+version: '3'
+services:
+  jetson-sprinkler:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: jetson-sprinkler
+    ports:
+      - "8000:8000"
+    environment:
+      - uid=${UID:-1000}
+      - gid=${GID:-1000}
+      - gid_gpio=${GID_GPIO:-1000}
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=admin
+    volumes:
+      # Map the firmware config files so they persist between container restarts
+      - ./firmware/src/valves.json:/app/firmware/src/valves.json
+      - ./firmware/src/schedules.json:/app/firmware/src/schedules.json
+      
+      # udev rules for GPIO
+      - /etc/udev/rules.d:/etc/udev/rules.d
+      # system access for GPIO
+      - /dev:/dev
+      - /sys:/sys
+      - /proc:/proc
+      - /sys/class/gpio:/sys/class/gpio
+      - /sys/devices:/sys/devices
+    devices:
+      - /dev/gpiochip0:/dev/gpiochip0 # for GPIO
+      - /dev/gpiochip1:/dev/gpiochip1 # for GPIO
+    privileged: true
