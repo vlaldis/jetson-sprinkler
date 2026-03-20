@@ -1,9 +1,12 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 import os
 
 from app import models, auth, storage
+from app.scheduler.manager import start_scheduler, stop_scheduler, reload_jobs, run_sprinkler_routine
 
 app = FastAPI(title="Sprinkler Control API")
 
@@ -19,7 +22,6 @@ app.add_middleware(
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 # --- Authentication Configuration ---
-# Read from environment variables, fallback to defaults
 ADMIN_USER = os.environ.get("ADMIN_USERNAME", "admin")
 ADMIN_PASS = os.environ.get("ADMIN_PASSWORD", "admin")
 HASHED_PASS = auth.get_password_hash(ADMIN_PASS)
@@ -51,8 +53,16 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
     return auth.UserInDB(**user)
 
-# --- Routes ---
+# --- Lifespan Events ---
+@app.on_event("startup")
+async def startup_event():
+    start_scheduler()
 
+@app.on_event("shutdown")
+async def shutdown_event():
+    stop_scheduler()
+
+# --- Routes ---
 @app.post("/token", response_model=auth.Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user_dict = fake_users_db.get(form_data.username)
@@ -68,7 +78,6 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
-
 
 @app.get("/api/valves", response_model=list[models.Valve])
 async def get_valves(current_user: auth.UserInDB = Depends(get_current_user)):
@@ -88,9 +97,29 @@ async def get_schedules(current_user: auth.UserInDB = Depends(get_current_user))
 async def update_schedules(schedules: list[models.Schedule], current_user: auth.UserInDB = Depends(get_current_user)):
     schedules_dict = [s.dict(exclude_none=True) for s in schedules]
     storage.save_schedules(schedules_dict)
+    # Reload APScheduler jobs when schedules are updated
+    reload_jobs()
     return {"status": "success", "message": "Schedules updated successfully"}
 
 @app.post("/api/run")
 async def run_sprinkler(command: models.RunCommand, current_user: auth.UserInDB = Depends(get_current_user)):
-    # To be implemented: Background task execution 
-    return {"status": "success", "message": f"Sprinkler routine started (mock)"}
+    run_sprinkler_routine(
+        valve_ids=command.valves,
+        duration=command.duration,
+        rounds=command.rounds
+    )
+    return {"status": "success", "message": "Sprinkler routine started."}
+
+# --- Static Frontend Serving ---
+FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend", "dist")
+
+if os.path.exists(FRONTEND_DIR):
+    app.mount("/assets", StaticFiles(directory=os.path.join(FRONTEND_DIR, "assets")), name="assets")
+    
+    @app.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+        # Serve static files or fallback to index.html for SPA routing
+        path = os.path.join(FRONTEND_DIR, full_path)
+        if os.path.isfile(path):
+            return FileResponse(path)
+        return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
