@@ -9,8 +9,8 @@ from app.storage import get_schedules, get_valves
 logger = logging.getLogger(__name__)
 
 # Setup paths to existing firmware
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FIRMWARE_DIR = os.path.join(os.path.dirname(BASE_DIR), "firmware")
+# In Docker container, firmware is at /app/firmware
+FIRMWARE_DIR = "/app/firmware"
 MAIN_SCRIPT = os.path.join(FIRMWARE_DIR, "__main__.py")
 
 scheduler = BackgroundScheduler()
