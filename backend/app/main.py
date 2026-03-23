@@ -1,10 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 from typing import List
-import os
 
 from app import models, auth, storage
 from app.scheduler.manager import start_scheduler, stop_scheduler, reload_jobs, run_sprinkler_routine
@@ -110,25 +107,3 @@ async def run_sprinkler(command: models.RunCommand, current_user: auth.UserInDB 
         rounds=command.rounds
     )
     return {"status": "success", "message": "Sprinkler routine started."}
-
-# --- Static Frontend Serving ---
-FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend", "dist")
-
-import logging
-logger = logging.getLogger(__name__)
-logger.info(f"Looking for frontend at: {FRONTEND_DIR}")
-logger.info(f"Frontend exists: {os.path.exists(FRONTEND_DIR)}")
-
-if os.path.exists(FRONTEND_DIR):
-    logger.info("Mounting frontend static files")
-    app.mount("/assets", StaticFiles(directory=os.path.join(FRONTEND_DIR, "assets")), name="assets")
-    
-    @app.get("/{full_path:path}")
-    async def serve_frontend(full_path: str):
-        # Serve static files or fallback to index.html for SPA routing
-        path = os.path.join(FRONTEND_DIR, full_path)
-        if os.path.isfile(path):
-            return FileResponse(path)
-        return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
-else:
-    logger.warning(f"Frontend directory not found at {FRONTEND_DIR}")

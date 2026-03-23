@@ -1,10 +1,10 @@
 version: '3'
 services:
-  jetson-sprinkler:
+  backend:
     build: 
       context: .
-      dockerfile: Dockerfile
-    container_name: jetson-sprinkler
+      dockerfile: ./backend/Dockerfile
+    container_name: sprinkler-backend
     ports:
       - "8000:8000"
     environment:
@@ -30,3 +30,23 @@ services:
       - /dev/gpiochip0:/dev/gpiochip0 # for GPIO
       - /dev/gpiochip1:/dev/gpiochip1 # for GPIO
     privileged: true
+    networks:
+      - sprinkler-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sprinkler-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - sprinkler-network
+
+networks:
+  sprinkler-network:
+    driver: bridge
