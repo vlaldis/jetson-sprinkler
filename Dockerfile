@@ -12,6 +12,9 @@ ENV uid=ubuntu \
     gid=gpio \
     gid_gpio=gid_gpio
 
+# Avoid interactive prompts during apt-get install
+ENV DEBIAN_FRONTEND=noninteractive
+
 # Install OS-level dependencies for cryptography (Rust compiler needed for newer versions, or libffi-dev for older)
 RUN apt-get update -y && \
     apt-get install -y apt-utils python3-pip git curl libffi-dev libssl-dev python3-dev && \
