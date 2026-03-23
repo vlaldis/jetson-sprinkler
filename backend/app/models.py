@@ -3,21 +3,22 @@ from typing import List, Optional
 
 class Valve(BaseModel):
     id: int
-    gpio: int
-    active: str
     name: Optional[str] = None
-    master: Optional[bool] = False
+    gpio: int
+    is_input: Optional[bool] = False
     enabled: Optional[bool] = True
-    filterCleanup: Optional[bool] = False
+    active: str
 
 class Schedule(BaseModel):
     id: Optional[str] = None
-    name: Optional[str] = None
+    name: str
     valve_ids: List[int]
-    duration: int
+    rain_sensor_id: Optional[int] = None
     routine: str
     start_time: str
     rounds: int
+    duration: int
+    round_delay: int = 5
 
 class RunCommand(BaseModel):
     valves: Optional[List[int]] = None
