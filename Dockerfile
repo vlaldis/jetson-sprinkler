@@ -47,6 +47,10 @@ EXPOSE 8000
 ENV VALVES_FILE=/app/firmware/src/valves.json
 ENV SCHEDULES_FILE=/app/firmware/src/schedules.json
 
+# Fix for Click/Uvicorn locale crash
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+
 # Start the FastAPI server using Uvicorn
 WORKDIR /app/backend
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
