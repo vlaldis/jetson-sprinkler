@@ -13,6 +13,7 @@ services:
       - gid_gpio=${GID_GPIO:-1000}
       - ADMIN_USERNAME=admin
       - ADMIN_PASSWORD=admin
+      - TZ=Europe/Prague
     volumes:
       # Map the firmware config files so they persist between container restarts
       - ./firmware/src/valves.json:/app/firmware/src/valves.json

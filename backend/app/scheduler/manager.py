@@ -5,6 +5,8 @@ import logging
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from app.storage import get_schedules, get_valves
+import pytz
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +15,16 @@ logger = logging.getLogger(__name__)
 FIRMWARE_DIR = "/app/firmware"
 MAIN_SCRIPT = os.path.join(FIRMWARE_DIR, "__main__.py")
 
-scheduler = BackgroundScheduler()
+# Get local timezone from environment or use system default
+try:
+    tz_name = os.environ.get('TZ', 'Europe/Prague')
+    LOCAL_TZ = pytz.timezone(tz_name)
+    logger.info(f"Using timezone: {tz_name}")
+except:
+    LOCAL_TZ = pytz.timezone('UTC')
+    logger.warning("Failed to load timezone, using UTC")
+
+scheduler = BackgroundScheduler(timezone=LOCAL_TZ)
 
 def run_sprinkler_routine(valve_ids, duration, rounds):
     """
@@ -66,7 +77,8 @@ def reload_jobs():
             trigger = CronTrigger(
                 day_of_week=cron_days,
                 hour=int(hour),
-                minute=int(minute)
+                minute=int(minute),
+                timezone=LOCAL_TZ
             )
             
             scheduler.add_job(
