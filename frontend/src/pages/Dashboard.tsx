@@ -17,6 +17,7 @@ interface Schedule {
   start_time: string;
   rounds: number;
   round_delay: number;
+  enabled?: boolean;
 }
 
 interface Valve {
@@ -40,7 +41,8 @@ const Dashboard: React.FC = () => {
     routine: "Mo",
     start_time: "05:00",
     rounds: 2,
-    round_delay: 5
+    round_delay: 5,
+    enabled: true
   };
   
   const [currentSchedule, setCurrentSchedule] = useState<Schedule>(defaultSchedule);
@@ -254,10 +256,28 @@ const Dashboard: React.FC = () => {
         {schedules.map((schedule, index) => (
           <Card key={index}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xl font-bold flex flex-col">
-                <span>{schedule.name}</span>
-                <span className="text-sm font-normal text-gray-500">{schedule.start_time}</span>
-              </CardTitle>
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={schedule.enabled !== false}
+                  onChange={async (e) => {
+                    const updatedSchedules = [...schedules];
+                    updatedSchedules[index] = {...schedule, enabled: e.target.checked};
+                    try {
+                      await api.post("/api/schedules", updatedSchedules);
+                      setSchedules(updatedSchedules);
+                    } catch (error) {
+                      console.error("Failed to update schedule:", error);
+                    }
+                  }}
+                  className="w-4 h-4 rounded"
+                  title={schedule.enabled !== false ? "Disable routine" : "Enable routine"}
+                />
+                <CardTitle className="text-xl font-bold flex flex-col">
+                  <span className={schedule.enabled === false ? "text-gray-400" : ""}>{schedule.name}</span>
+                  <span className="text-sm font-normal text-gray-500">{schedule.start_time}</span>
+                </CardTitle>
+              </div>
               <Button size="icon" variant="ghost" className="text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => handleRunNow(schedule)}>
                 <Play className="h-5 w-5" />
               </Button>

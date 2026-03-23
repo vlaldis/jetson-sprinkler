@@ -19,6 +19,7 @@ class Schedule(BaseModel):
     rounds: int
     duration: int
     round_delay: int = 5
+    enabled: Optional[bool] = True
 
 class RunCommand(BaseModel):
     valves: Optional[List[int]] = None
