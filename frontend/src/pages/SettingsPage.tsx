@@ -129,7 +129,7 @@ const SettingsPage: React.FC = () => {
               {valves.map((valve) => (
                 <TableRow key={valve.id}>
                   <TableCell className="font-medium">{valve.id}</TableCell>
-                  <TableCell>{valve.name || `Device ${valve.id}`}</TableCell>
+                  <TableCell>{valve.name || `Valve ${valve.id}`}</TableCell>
                   <TableCell>{valve.gpio}</TableCell>
                   <TableCell className="uppercase">{valve.active}</TableCell>
                   <TableCell>
@@ -173,7 +173,7 @@ const SettingsPage: React.FC = () => {
                   id="name"
                   value={editingValve.name || ""}
                   onChange={e => setEditingValve({...editingValve, name: e.target.value})}
-                  placeholder={`Device ${editingValve.id}`}
+                  placeholder={`Valve ${editingValve.id}`}
                   className="col-span-3"
                 />
               </div>
