@@ -114,7 +114,13 @@ async def run_sprinkler(command: models.RunCommand, current_user: auth.UserInDB 
 # --- Static Frontend Serving ---
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend", "dist")
 
+import logging
+logger = logging.getLogger(__name__)
+logger.info(f"Looking for frontend at: {FRONTEND_DIR}")
+logger.info(f"Frontend exists: {os.path.exists(FRONTEND_DIR)}")
+
 if os.path.exists(FRONTEND_DIR):
+    logger.info("Mounting frontend static files")
     app.mount("/assets", StaticFiles(directory=os.path.join(FRONTEND_DIR, "assets")), name="assets")
     
     @app.get("/{full_path:path}")
@@ -124,3 +130,5 @@ if os.path.exists(FRONTEND_DIR):
         if os.path.isfile(path):
             return FileResponse(path)
         return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
+else:
+    logger.warning(f"Frontend directory not found at {FRONTEND_DIR}")
