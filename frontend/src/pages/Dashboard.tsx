@@ -23,6 +23,7 @@ interface Valve {
   id: number;
   name?: string;
   is_input?: boolean;
+  enabled?: boolean;
 }
 
 const Dashboard: React.FC = () => {
@@ -202,7 +203,7 @@ const Dashboard: React.FC = () => {
                 <Label className="text-right mt-2">Valves</Label>
                 <div className="col-span-3 space-y-2 border p-3 rounded-md">
                   {valves.length > 0 ? (
-                    valves.filter(v => v.is_input !== true).map(valve => (
+                    valves.filter(v => v.is_input !== true && v.enabled !== false).map(valve => (
                       <div key={valve.id} className="flex items-center gap-2">
                         <input 
                           type="checkbox" 
