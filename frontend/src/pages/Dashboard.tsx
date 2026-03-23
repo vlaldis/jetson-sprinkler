@@ -47,6 +47,8 @@ const Dashboard: React.FC = () => {
   
   const [currentSchedule, setCurrentSchedule] = useState<Schedule>(defaultSchedule);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dropZone, setDropZone] = useState<'enabled' | 'disabled' | null>(null);
 
   const fetchData = async () => {
     try {
@@ -253,35 +255,50 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Enabled Routines Section */}
-      {schedules.filter(s => s.enabled !== false).length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Active Routines</h2>
+      <div 
+        className={`space-y-4 p-4 rounded-lg border-2 border-dashed transition-colors ${
+          dropZone === 'enabled' ? 'border-green-500 bg-green-50' : 'border-transparent'
+        }`}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDropZone('enabled');
+        }}
+        onDragLeave={() => setDropZone(null)}
+        onDrop={async (e) => {
+          e.preventDefault();
+          setDropZone(null);
+          if (draggedIndex !== null) {
+            const updatedSchedules = [...schedules];
+            updatedSchedules[draggedIndex] = {...updatedSchedules[draggedIndex], enabled: true};
+            try {
+              await api.post("/api/schedules", updatedSchedules);
+              setSchedules(updatedSchedules);
+            } catch (error) {
+              console.error("Failed to update schedule:", error);
+            }
+            setDraggedIndex(null);
+          }
+        }}
+      >
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Active Routines</h2>
+        {schedules.filter(s => s.enabled !== false).length === 0 && (
+          <div className="text-center py-8 text-gray-400">Drop routines here to enable them</div>
+        )}
+        {schedules.filter(s => s.enabled !== false).length > 0 && (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {schedules.map((schedule, index) => schedule.enabled !== false && (
-              <Card key={index}>
+              <Card 
+                key={index}
+                draggable
+                onDragStart={() => setDraggedIndex(index)}
+                onDragEnd={() => setDraggedIndex(null)}
+                className="cursor-move hover:shadow-lg transition-shadow"
+              >
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      checked={true}
-                      onChange={async (e) => {
-                        const updatedSchedules = [...schedules];
-                        updatedSchedules[index] = {...schedule, enabled: e.target.checked};
-                        try {
-                          await api.post("/api/schedules", updatedSchedules);
-                          setSchedules(updatedSchedules);
-                        } catch (error) {
-                          console.error("Failed to update schedule:", error);
-                        }
-                      }}
-                      className="w-4 h-4 rounded"
-                      title="Disable routine"
-                    />
-                    <CardTitle className="text-xl font-bold flex flex-col">
-                      <span>{schedule.name}</span>
-                      <span className="text-sm font-normal text-gray-500">{schedule.start_time}</span>
-                    </CardTitle>
-                  </div>
+                  <CardTitle className="text-xl font-bold flex flex-col">
+                    <span>{schedule.name}</span>
+                    <span className="text-sm font-normal text-gray-500">{schedule.start_time}</span>
+                  </CardTitle>
                   <Button size="icon" variant="ghost" className="text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => handleRunNow(schedule)}>
                     <Play className="h-5 w-5" />
                   </Button>
@@ -313,39 +330,54 @@ const Dashboard: React.FC = () => {
               </Card>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Disabled Routines Section */}
-      {schedules.filter(s => s.enabled === false).length > 0 && (
-        <div className="space-y-4 mt-8">
-          <h2 className="text-2xl font-bold text-gray-500">Disabled Routines</h2>
+      <div 
+        className={`space-y-4 mt-8 p-4 rounded-lg border-2 border-dashed transition-colors ${
+          dropZone === 'disabled' ? 'border-red-500 bg-red-50' : 'border-transparent'
+        }`}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDropZone('disabled');
+        }}
+        onDragLeave={() => setDropZone(null)}
+        onDrop={async (e) => {
+          e.preventDefault();
+          setDropZone(null);
+          if (draggedIndex !== null) {
+            const updatedSchedules = [...schedules];
+            updatedSchedules[draggedIndex] = {...updatedSchedules[draggedIndex], enabled: false};
+            try {
+              await api.post("/api/schedules", updatedSchedules);
+              setSchedules(updatedSchedules);
+            } catch (error) {
+              console.error("Failed to update schedule:", error);
+            }
+            setDraggedIndex(null);
+          }
+        }}
+      >
+        <h2 className="text-2xl font-bold text-gray-500">Disabled Routines</h2>
+        {schedules.filter(s => s.enabled === false).length === 0 && (
+          <div className="text-center py-8 text-gray-400">Drop routines here to disable them</div>
+        )}
+        {schedules.filter(s => s.enabled === false).length > 0 && (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {schedules.map((schedule, index) => schedule.enabled === false && (
-              <Card key={index} className="opacity-60">
+              <Card 
+                key={index} 
+                className="opacity-60 cursor-move hover:shadow-lg transition-shadow"
+                draggable
+                onDragStart={() => setDraggedIndex(index)}
+                onDragEnd={() => setDraggedIndex(null)}
+              >
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      checked={false}
-                      onChange={async (e) => {
-                        const updatedSchedules = [...schedules];
-                        updatedSchedules[index] = {...schedule, enabled: e.target.checked};
-                        try {
-                          await api.post("/api/schedules", updatedSchedules);
-                          setSchedules(updatedSchedules);
-                        } catch (error) {
-                          console.error("Failed to update schedule:", error);
-                        }
-                      }}
-                      className="w-4 h-4 rounded"
-                      title="Enable routine"
-                    />
-                    <CardTitle className="text-xl font-bold flex flex-col">
-                      <span className="text-gray-400">{schedule.name}</span>
-                      <span className="text-sm font-normal text-gray-500">{schedule.start_time}</span>
-                    </CardTitle>
-                  </div>
+                  <CardTitle className="text-xl font-bold flex flex-col">
+                    <span className="text-gray-400">{schedule.name}</span>
+                    <span className="text-sm font-normal text-gray-500">{schedule.start_time}</span>
+                  </CardTitle>
                   <Button size="icon" variant="ghost" className="text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => handleRunNow(schedule)}>
                     <Play className="h-5 w-5" />
                   </Button>
@@ -377,8 +409,8 @@ const Dashboard: React.FC = () => {
               </Card>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
