@@ -3,6 +3,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from typing import List
 import os
 
 from app import models, auth, storage
@@ -79,22 +80,22 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.get("/api/valves", response_model=list[models.Valve])
+@app.get("/api/valves", response_model=List[models.Valve])
 async def get_valves(current_user: auth.UserInDB = Depends(get_current_user)):
     return storage.get_valves()
 
 @app.post("/api/valves")
-async def update_valves(valves: list[models.Valve], current_user: auth.UserInDB = Depends(get_current_user)):
+async def update_valves(valves: List[models.Valve], current_user: auth.UserInDB = Depends(get_current_user)):
     valves_dict = [v.dict(exclude_none=True) for v in valves]
     storage.save_valves(valves_dict)
     return {"status": "success", "message": "Valves updated successfully"}
 
-@app.get("/api/schedules", response_model=list[models.Schedule])
+@app.get("/api/schedules", response_model=List[models.Schedule])
 async def get_schedules(current_user: auth.UserInDB = Depends(get_current_user)):
     return storage.get_schedules()
 
 @app.post("/api/schedules")
-async def update_schedules(schedules: list[models.Schedule], current_user: auth.UserInDB = Depends(get_current_user)):
+async def update_schedules(schedules: List[models.Schedule], current_user: auth.UserInDB = Depends(get_current_user)):
     schedules_dict = [s.dict(exclude_none=True) for s in schedules]
     storage.save_schedules(schedules_dict)
     # Reload APScheduler jobs when schedules are updated
