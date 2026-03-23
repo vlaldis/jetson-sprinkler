@@ -146,9 +146,42 @@ const Dashboard: React.FC = () => {
                 <Label htmlFor="time" className="text-right">Start Time</Label>
                 <Input id="time" type="time" value={currentSchedule.start_time} onChange={e => setCurrentSchedule({...currentSchedule, start_time: e.target.value})} className="col-span-3" />
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="days" className="text-right">Days</Label>
-                <Input id="days" value={currentSchedule.routine} onChange={e => setCurrentSchedule({...currentSchedule, routine: e.target.value})} placeholder="Mo Tu We Th Fr Sa Su" className="col-span-3" />
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label className="text-right mt-2">Days</Label>
+                <div className="col-span-3 grid grid-cols-7 gap-2">
+                  {[
+                    { short: 'Mo', full: 'Monday' },
+                    { short: 'Tu', full: 'Tuesday' },
+                    { short: 'We', full: 'Wednesday' },
+                    { short: 'Th', full: 'Thursday' },
+                    { short: 'Fr', full: 'Friday' },
+                    { short: 'Sa', full: 'Saturday' },
+                    { short: 'Su', full: 'Sunday' }
+                  ].map(day => {
+                    const isSelected = currentSchedule.routine.includes(day.short);
+                    return (
+                      <div key={day.short} className="flex flex-col items-center">
+                        <input
+                          type="checkbox"
+                          id={`day-${day.short}`}
+                          checked={isSelected}
+                          onChange={(e) => {
+                            const days = currentSchedule.routine.split(' ').filter(d => d);
+                            let newDays;
+                            if (e.target.checked) {
+                              newDays = [...days, day.short];
+                            } else {
+                              newDays = days.filter(d => d !== day.short);
+                            }
+                            setCurrentSchedule({...currentSchedule, routine: newDays.join(' ')});
+                          }}
+                          className="rounded"
+                        />
+                        <Label htmlFor={`day-${day.short}`} className="text-xs mt-1 cursor-pointer">{day.short}</Label>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="duration" className="text-right">Duration (s)</Label>
