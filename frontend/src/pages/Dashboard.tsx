@@ -252,63 +252,133 @@ const Dashboard: React.FC = () => {
         </Dialog>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {schedules.map((schedule, index) => (
-          <Card key={index}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  checked={schedule.enabled !== false}
-                  onChange={async (e) => {
-                    const updatedSchedules = [...schedules];
-                    updatedSchedules[index] = {...schedule, enabled: e.target.checked};
-                    try {
-                      await api.post("/api/schedules", updatedSchedules);
-                      setSchedules(updatedSchedules);
-                    } catch (error) {
-                      console.error("Failed to update schedule:", error);
+      {/* Enabled Routines Section */}
+      {schedules.filter(s => s.enabled !== false).length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Active Routines</h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {schedules.map((schedule, index) => schedule.enabled !== false && (
+              <Card key={index}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={true}
+                      onChange={async (e) => {
+                        const updatedSchedules = [...schedules];
+                        updatedSchedules[index] = {...schedule, enabled: e.target.checked};
+                        try {
+                          await api.post("/api/schedules", updatedSchedules);
+                          setSchedules(updatedSchedules);
+                        } catch (error) {
+                          console.error("Failed to update schedule:", error);
+                        }
+                      }}
+                      className="w-4 h-4 rounded"
+                      title="Disable routine"
+                    />
+                    <CardTitle className="text-xl font-bold flex flex-col">
+                      <span>{schedule.name}</span>
+                      <span className="text-sm font-normal text-gray-500">{schedule.start_time}</span>
+                    </CardTitle>
+                  </div>
+                  <Button size="icon" variant="ghost" className="text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => handleRunNow(schedule)}>
+                    <Play className="h-5 w-5" />
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-sm text-gray-500 mb-2 font-medium">{schedule.routine}</div>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div><span className="font-semibold">Duration:</span> {schedule.duration}s</div>
+                    <div><span className="font-semibold">Delay:</span> {schedule.round_delay}s</div>
+                    <div><span className="font-semibold">Rounds:</span> {schedule.rounds}</div>
+                    <div>
+                      <span className="font-semibold">Sensor:</span> {
+                        schedule.rain_sensor_id !== null 
+                          ? valves.find(v => v.id === schedule.rain_sensor_id)?.name || `ID: ${schedule.rain_sensor_id}`
+                          : "None"
+                      }
+                    </div>
+                  </div>
+                  <div className="mt-4 text-sm text-gray-500">
+                    <span className="font-semibold">Valves:</span> {
+                      schedule.valve_ids.map(id => valves.find(v => v.id === id)?.name || id).join(", ")
                     }
-                  }}
-                  className="w-4 h-4 rounded"
-                  title={schedule.enabled !== false ? "Disable routine" : "Enable routine"}
-                />
-                <CardTitle className="text-xl font-bold flex flex-col">
-                  <span className={schedule.enabled === false ? "text-gray-400" : ""}>{schedule.name}</span>
-                  <span className="text-sm font-normal text-gray-500">{schedule.start_time}</span>
-                </CardTitle>
-              </div>
-              <Button size="icon" variant="ghost" className="text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => handleRunNow(schedule)}>
-                <Play className="h-5 w-5" />
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm text-gray-500 mb-2 font-medium">{schedule.routine}</div>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div><span className="font-semibold">Duration:</span> {schedule.duration}s</div>
-                <div><span className="font-semibold">Delay:</span> {schedule.round_delay}s</div>
-                <div><span className="font-semibold">Rounds:</span> {schedule.rounds}</div>
-                <div>
-                  <span className="font-semibold">Sensor:</span> {
-                    schedule.rain_sensor_id !== null 
-                      ? valves.find(v => v.id === schedule.rain_sensor_id)?.name || `ID: ${schedule.rain_sensor_id}`
-                      : "None"
-                  }
-                </div>
-              </div>
-              <div className="mt-4 text-sm text-gray-500">
-                <span className="font-semibold">Valves:</span> {
-                  schedule.valve_ids.map(id => valves.find(v => v.id === id)?.name || id).join(", ")
-                }
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-end gap-2">
-              <Button size="sm" variant="outline" onClick={() => handleEditClick(schedule, index)}><Edit className="w-4 h-4 mr-1"/> Edit</Button>
-              <Button size="sm" variant="destructive" onClick={() => handleDeleteSchedule(index)}><Trash2 className="w-4 h-4 mr-1"/> Delete</Button>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-end gap-2">
+                  <Button size="sm" variant="outline" onClick={() => handleEditClick(schedule, index)}><Edit className="w-4 h-4 mr-1"/> Edit</Button>
+                  <Button size="sm" variant="destructive" onClick={() => handleDeleteSchedule(index)}><Trash2 className="w-4 h-4 mr-1"/> Delete</Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Disabled Routines Section */}
+      {schedules.filter(s => s.enabled === false).length > 0 && (
+        <div className="space-y-4 mt-8">
+          <h2 className="text-2xl font-bold text-gray-500">Disabled Routines</h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {schedules.map((schedule, index) => schedule.enabled === false && (
+              <Card key={index} className="opacity-60">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={false}
+                      onChange={async (e) => {
+                        const updatedSchedules = [...schedules];
+                        updatedSchedules[index] = {...schedule, enabled: e.target.checked};
+                        try {
+                          await api.post("/api/schedules", updatedSchedules);
+                          setSchedules(updatedSchedules);
+                        } catch (error) {
+                          console.error("Failed to update schedule:", error);
+                        }
+                      }}
+                      className="w-4 h-4 rounded"
+                      title="Enable routine"
+                    />
+                    <CardTitle className="text-xl font-bold flex flex-col">
+                      <span className="text-gray-400">{schedule.name}</span>
+                      <span className="text-sm font-normal text-gray-500">{schedule.start_time}</span>
+                    </CardTitle>
+                  </div>
+                  <Button size="icon" variant="ghost" className="text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => handleRunNow(schedule)}>
+                    <Play className="h-5 w-5" />
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-sm text-gray-500 mb-2 font-medium">{schedule.routine}</div>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div><span className="font-semibold">Duration:</span> {schedule.duration}s</div>
+                    <div><span className="font-semibold">Delay:</span> {schedule.round_delay}s</div>
+                    <div><span className="font-semibold">Rounds:</span> {schedule.rounds}</div>
+                    <div>
+                      <span className="font-semibold">Sensor:</span> {
+                        schedule.rain_sensor_id !== null 
+                          ? valves.find(v => v.id === schedule.rain_sensor_id)?.name || `ID: ${schedule.rain_sensor_id}`
+                          : "None"
+                      }
+                    </div>
+                  </div>
+                  <div className="mt-4 text-sm text-gray-500">
+                    <span className="font-semibold">Valves:</span> {
+                      schedule.valve_ids.map(id => valves.find(v => v.id === id)?.name || id).join(", ")
+                    }
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-end gap-2">
+                  <Button size="sm" variant="outline" onClick={() => handleEditClick(schedule, index)}><Edit className="w-4 h-4 mr-1"/> Edit</Button>
+                  <Button size="sm" variant="destructive" onClick={() => handleDeleteSchedule(index)}><Trash2 className="w-4 h-4 mr-1"/> Delete</Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
