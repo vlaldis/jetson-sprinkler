@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { Droplets, Settings, LogOut, Menu } from "lucide-react";
+import { Droplets, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const Layout: React.FC = () => {

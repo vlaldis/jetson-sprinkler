@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import api from "../lib/api";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Play, Plus, Trash2, Edit } from "lucide-react";
 
 interface Schedule {
@@ -18,14 +17,8 @@ interface Schedule {
   rounds: number;
 }
 
-interface Valve {
-  id: number;
-  name?: string;
-}
-
 const Dashboard: React.FC = () => {
   const [schedules, setSchedules] = useState<Schedule[]>([]);
-  const [valves, setValves] = useState<Valve[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentSchedule, setCurrentSchedule] = useState<Schedule>({
@@ -38,12 +31,8 @@ const Dashboard: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      const [schedulesRes, valvesRes] = await Promise.all([
-        api.get("/api/schedules"),
-        api.get("/api/valves")
-      ]);
+      const schedulesRes = await api.get("/api/schedules");
       setSchedules(schedulesRes.data);
-      setValves(valvesRes.data);
     } catch (error) {
       console.error("Failed to fetch data:", error);
     } finally {
@@ -89,7 +78,7 @@ const Dashboard: React.FC = () => {
         <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Scheduled Routines</h1>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
+          <DialogTrigger>
             <Button className="flex items-center gap-2">
               <Plus className="w-4 h-4" /> Add Routine
             </Button>
