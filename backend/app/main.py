@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
+import os
 
 from app import models, auth, storage
 from app.scheduler.manager import start_scheduler, stop_scheduler, reload_jobs, run_sprinkler_routine
