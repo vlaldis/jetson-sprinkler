@@ -51,6 +51,8 @@ const Dashboard: React.FC = () => {
         api.get("/api/schedules"),
         api.get("/api/valves")
       ]);
+      console.log("Fetched valves:", valvesRes.data);
+      console.log("Valves filtered (not input):", valvesRes.data.filter((v: Valve) => !v.is_input));
       setSchedules(schedulesRes.data);
       setValves(valvesRes.data);
     } catch (error) {
@@ -199,25 +201,26 @@ const Dashboard: React.FC = () => {
               <div className="grid grid-cols-4 items-start gap-4 mt-2">
                 <Label className="text-right mt-2">Valves</Label>
                 <div className="col-span-3 space-y-2 border p-3 rounded-md">
-                  {valves.filter(v => !v.is_input).map(valve => (
-                    <div key={valve.id} className="flex items-center gap-2">
-                      <input 
-                        type="checkbox" 
-                        id={`valve-${valve.id}`}
-                        checked={currentSchedule.valve_ids.includes(valve.id)}
-                        onChange={(e) => {
-                          const newIds = e.target.checked 
-                            ? [...currentSchedule.valve_ids, valve.id]
-                            : currentSchedule.valve_ids.filter(id => id !== valve.id);
-                          setCurrentSchedule({...currentSchedule, valve_ids: newIds});
-                        }}
-                        className="rounded"
-                      />
-                      <Label htmlFor={`valve-${valve.id}`} className="cursor-pointer">{valve.name || `Valve ${valve.id}`}</Label>
-                    </div>
-                  ))}
-                  {valves.filter(v => !v.is_input).length === 0 && (
-                    <p className="text-sm text-gray-500">No valves configured yet.</p>
+                  {valves.length > 0 ? (
+                    valves.filter(v => v.is_input !== true).map(valve => (
+                      <div key={valve.id} className="flex items-center gap-2">
+                        <input 
+                          type="checkbox" 
+                          id={`valve-${valve.id}`}
+                          checked={currentSchedule.valve_ids.includes(valve.id)}
+                          onChange={(e) => {
+                            const newIds = e.target.checked 
+                              ? [...currentSchedule.valve_ids, valve.id]
+                              : currentSchedule.valve_ids.filter(id => id !== valve.id);
+                            setCurrentSchedule({...currentSchedule, valve_ids: newIds});
+                          }}
+                          className="rounded"
+                        />
+                        <Label htmlFor={`valve-${valve.id}`} className="cursor-pointer">{valve.name || `Valve ${valve.id}`}</Label>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500">No valves configured yet. Total valves: {valves.length}</p>
                   )}
                 </div>
               </div>
