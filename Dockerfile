@@ -12,9 +12,14 @@ ENV uid=ubuntu \
     gid=gpio \
     gid_gpio=gid_gpio
 
+# Install OS-level dependencies for cryptography (Rust compiler needed for newer versions, or libffi-dev for older)
 RUN apt-get update -y && \
-    apt-get install -y apt-utils python3-pip git curl && \
+    apt-get install -y apt-utils python3-pip git curl libffi-dev libssl-dev python3-dev && \
     rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip and install rust compiler for setuptools_rust (needed by cryptography)
+RUN pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir setuptools setuptools_rust
 
 WORKDIR /app
 
