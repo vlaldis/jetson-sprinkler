@@ -21,7 +21,15 @@ def run_sprinkler_routine(valve_ids, duration, rounds):
     """
     logger.info(f"Starting sprinkler routine: valves={valve_ids}, duration={duration}, rounds={rounds}")
     try:
-        cmd = [sys.executable, MAIN_SCRIPT, "-r", str(rounds), "-d", str(duration)]
+        # Path to valves.json in Docker container
+        valves_config = "/app/firmware/src/valves.json"
+        
+        cmd = [
+            sys.executable, MAIN_SCRIPT, 
+            "-c", valves_config,
+            "-r", str(rounds), 
+            "-d", str(duration)
+        ]
         
         if valve_ids:
             cmd.extend(["-v"] + [str(v) for v in valve_ids])
