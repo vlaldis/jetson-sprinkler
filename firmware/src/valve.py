@@ -8,10 +8,12 @@ DISABLED_MESSAGE = "Valve disabled. No action executed."
 
 
 class Valve(object):
-    def __init__(self, id, gpio, active, master=False, enabled=True, filterCleanup=False):
+    def __init__(self, id, gpio, active, master=False, enabled=True, filterCleanup=False, name=None, is_input=False):
         self.id = id
+        self.name = name
         self.gpio = gpio
         self.master = master
+        self.is_input = is_input
         self.active = GPIO.HIGH if active == HIGH else GPIO.LOW
         self.inactive = GPIO.LOW if active == HIGH else GPIO.HIGH
         self.filterCleanup = filterCleanup
