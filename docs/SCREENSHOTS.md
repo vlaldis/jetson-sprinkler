@@ -1,77 +1,59 @@
-# Screenshot Guide
+# Screenshots
 
-This document provides instructions for capturing screenshots for the user manual.
+This document contains all screenshots for the Jetson Sprinkler System user interface.
 
-## Required Screenshots
+---
 
-Navigate to `http://192.168.50.102:5173` and capture the following screenshots:
+## Login Page
 
-### 1. Login Page (`login.png`)
-- Navigate to the login page
-- Ensure the page is fully loaded
-- Capture the entire login form
-- Save as: `docs/screenshots/login.png`
+![Login Page](screenshots/login.png)
 
-### 2. Dashboard (`dashboard.png`)
-- Log in to the application
-- Navigate to the Dashboard
-- Ensure at least 2-3 routines are visible
-- Capture the full dashboard view
-- Save as: `docs/screenshots/dashboard.png`
+The login page where users authenticate with their credentials. Default username and password are both `admin`.
 
-### 3. Valves List (`valves-list.png`)
-- Navigate to Settings page
-- Show the table with configured valves
-- Ensure multiple valves are visible with different statuses
-- Save as: `docs/screenshots/valves-list.png`
+---
 
-### 4. Edit Valve Dialog (`edit-valve.png`)
-- Click Edit on any valve
-- Capture the edit dialog with all fields visible
-- Save as: `docs/screenshots/edit-valve.png`
+## Dashboard
 
-### 5. Create Routine Dialog (`create-routine.png`)
-- Click "Add Routine" button on Dashboard
-- Capture the full routine creation dialog
-- Ensure all fields are visible (name, time, days, valves, etc.)
-- Save as: `docs/screenshots/create-routine.png`
+![Dashboard](screenshots/dashboard.png)
 
-### 6. Active and Disabled Routines Sections (`routines-sections.png`)
-- On Dashboard, ensure you have both active and disabled routines
-- Capture both sections showing the separation
-- Save as: `docs/screenshots/routines-sections.png`
+The main dashboard showing active and disabled routines. Users can add new routines, edit existing ones, or run them manually.
 
-### 7. Drag and Drop (`drag-drop.png`)
-- Start dragging a routine card
-- Capture the moment when the drop zone is highlighted (green or red border)
-- Save as: `docs/screenshots/drag-drop.png`
+---
 
-### 8. Edit Routine Button (`edit-routine-button.png`)
-- Capture a routine card with the Edit button highlighted
-- Save as: `docs/screenshots/edit-routine-button.png`
+## Valves List
 
-### 9. Run Now Button (`run-now.png`)
-- Capture a routine card with the Play button (green) highlighted
-- Save as: `docs/screenshots/run-now.png`
+![Valves List](screenshots/valves-list.png)
 
-## Screenshot Tips
+The Settings page displaying all configured valves with their GPIO pins, active states, and status (enabled/disabled).
 
-- Use a resolution of at least 1920x1080
-- Capture in PNG format for best quality
-- Ensure text is readable
-- Include relevant UI elements but crop unnecessary whitespace
-- Use browser's screenshot tool or tools like:
-  - Windows: Snipping Tool or Win+Shift+S
-  - Mac: Cmd+Shift+4
-  - Linux: Screenshot utility or Flameshot
+---
 
-## After Capturing Screenshots
+## Edit Valve Dialog
 
-1. Place all screenshots in the `docs/screenshots/` directory
-2. Verify all filenames match those referenced in `USER_MANUAL.md`
-3. Commit the screenshots to the repository:
-   ```bash
-   git add docs/screenshots/*.png
-   git commit -m "docs: add user manual screenshots"
-   git push
-   ```
+![Edit Valve Dialog](screenshots/edit-valve.png)
+
+The valve configuration dialog where users can modify valve properties including name, GPIO pin, active state, and whether it's an input (rain sensor) or output (valve).
+
+---
+
+## Create Routine Dialog
+
+![Create Routine Dialog](screenshots/create-routine.png)
+
+The routine creation dialog showing all configuration options: routine name, start time, days of the week, duration, rounds, round delay, valve selection, and optional rain sensor.
+
+---
+
+## Drag and Drop
+
+![Drag and Drop](screenshots/drag-drop.gif)
+
+Demonstration of the drag and drop functionality for enabling/disabling routines. Drag routines between the Active and Disabled sections to change their status.
+
+---
+
+## Edit Routine Button
+
+![Edit Routine Button](screenshots/edit-routine-button.png)
+
+A routine card showing the Edit button which opens the routine configuration dialog for modifications.

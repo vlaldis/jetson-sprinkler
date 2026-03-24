@@ -9,7 +9,6 @@ A web-based sprinkler control system for NVIDIA Jetson Nano with automated sched
 - [Managing Valves](#managing-valves)
 - [Creating Routines](#creating-routines)
 - [Managing Routines](#managing-routines)
-- [Running Routines Manually](#running-routines-manually)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -153,14 +152,12 @@ This routine will water the front lawn and side yard for 15 minutes, twice, ever
 
 The Dashboard displays all your routines in two sections:
 
-![Active and Disabled Routines](docs/screenshots/routines-sections.png)
-
 - **Active Routines:** Enabled routines that will run on schedule
 - **Disabled Routines:** Routines that are paused and won't run
 
 ### Enabling/Disabling Routines with Drag and Drop
 
-![Drag and Drop](docs/screenshots/drag-drop.png)
+![Drag and Drop](docs/screenshots/drag-drop.gif)
 
 You can easily enable or disable routines by dragging them between sections:
 
@@ -195,21 +192,6 @@ You can easily enable or disable routines by dragging them between sections:
 2. Click the **Delete** button (red trash icon)
 3. Confirm the deletion
 4. The routine will be permanently removed
-
----
-
-## Running Routines Manually
-
-You can run any routine immediately, regardless of its schedule.
-
-![Run Now Button](docs/screenshots/run-now.png)
-
-1. Find the routine you want to run
-2. Click the **Play** button (green play icon) in the top-right corner of the routine card
-3. The routine will start immediately
-4. Check the backend logs to monitor progress
-
-> ⚠️ **Note:** Manual runs will respect the rain sensor if configured
 
 ---
 
