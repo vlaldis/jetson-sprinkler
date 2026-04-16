@@ -5,7 +5,8 @@ Should work with Raspberry Pi as well, just replace ```Jetson.GPIO``` with ```RP
 ## Features
 
 - 🌐 **Web Interface** - Modern React-based UI for easy configuration
-- 📅 **Automated Scheduling** - Create routines with custom schedules
+- � **HTTPS Support** - Secure encrypted communication with SSL/TLS
+- � **Automated Scheduling** - Create routines with custom schedules
 - 🎯 **Drag & Drop** - Enable/disable routines with intuitive drag and drop
 - 🌧️ **Rain Sensor Support** - Skip watering when rain is detected
 - 🔐 **Authentication** - Secure access with JWT authentication
@@ -26,36 +27,52 @@ Should work with Raspberry Pi as well, just replace ```Jetson.GPIO``` with ```RP
    cd jetson-sprinkler
    ```
 
-2. Start the application:
+2. Generate SSL certificate:
+   ```bash
+   chmod +x scripts/generate-ssl-cert.sh
+   ./scripts/generate-ssl-cert.sh
+   ```
+
+3. Start the application:
    ```bash
    docker-compose up -d
    ```
 
-3. Access the web interface:
-   - Open your browser and navigate to: `http://<jetson-ip>:5173`
+4. Access the web interface:
+   - **HTTPS (recommended)**: `https://<jetson-ip>`
+   - **HTTP**: `http://<jetson-ip>` (redirects to HTTPS)
    - Default credentials: `admin` / `admin`
+   
+   ⚠️ **Note**: You'll see a browser security warning for the self-signed certificate. This is normal - click "Advanced" and proceed.
 
 ## Documentation
 
 📖 **[User Manual](USER_MANUAL.md)** - Complete guide for configuring valves and routines
 
-📸 **[Screenshots](docs/SCREENSHOTS.md)** - Visual guide to the user interface
+� **[HTTPS Setup](HTTPS_SETUP.md)** - SSL/TLS configuration and security guide
+
+� **[Screenshots](docs/SCREENSHOTS.md)** - Visual guide to the user interface
 
 ## Architecture
 
-The system consists of three main components:
+The system consists of four main components:
 
-1. **Frontend** (React + Vite)
+1. **Nginx Reverse Proxy**
+   - SSL/TLS termination (HTTPS)
+   - Routes requests to frontend and backend
+   - Runs on ports 80 (HTTP) and 443 (HTTPS)
+
+2. **Frontend** (React + Vite)
    - Modern web interface for configuration and control
-   - Runs on port 5173
+   - Internal port 5173
 
-2. **Backend** (FastAPI)
+3. **Backend** (FastAPI)
    - REST API for managing valves and schedules
    - JWT authentication
    - APScheduler for automated routine execution
-   - Runs on port 8000
+   - Internal port 8000
 
-3. **Firmware** (Python)
+4. **Firmware** (Python)
    - GPIO control for valve operation
    - Executes sprinkler routines
    - Rain sensor integration

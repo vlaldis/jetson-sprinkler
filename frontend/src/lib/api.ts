@@ -1,20 +1,9 @@
 import axios from "axios";
 
-// Dynamically construct API URL based on current hostname
-// This ensures the API URL matches wherever the frontend is accessed from
-const getApiUrl = () => {
-  // If VITE_API_URL is set in environment, use it (for development/override)
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-  
-  // Otherwise, use the same hostname as the frontend with port 8000
-  const protocol = window.location.protocol; // http: or https:
-  const hostname = window.location.hostname; // e.g., 192.168.50.102 or localhost
-  return `${protocol}//${hostname}:8000`;
-};
-
-const API_URL = getApiUrl();
+// With nginx reverse proxy, we use relative URLs
+// nginx will proxy /api/* and /token to the backend
+// This works seamlessly with both HTTP and HTTPS
+const API_URL = import.meta.env.VITE_API_URL || "";
 
 const api = axios.create({
   baseURL: API_URL,

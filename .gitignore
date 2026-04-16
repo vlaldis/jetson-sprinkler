@@ -127,3 +127,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# SSL certificates (private keys should never be committed)
+nginx/ssl/*.pem
+nginx/ssl/*.key
+nginx/ssl/*.crt
